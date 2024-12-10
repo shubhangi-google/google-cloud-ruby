@@ -3158,7 +3158,6 @@ module Google
             b.service = service
             b.user_project = user_project
             b.generation = generation
-            b.soft_deleted = soft_deleted
           end
         end
 

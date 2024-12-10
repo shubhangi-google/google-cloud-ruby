@@ -1,4 +1,4 @@
-# Copyright 2020 Google LLC
+# Copyright 2024 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,21 +12,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# [START storage_list_buckets]
-def list_buckets
-  #{}require "google/cloud/storage"
-  require_relative '../lib/google/cloud/storage'
-  require_relative '../lib/google/cloud/storage/project'
-  require_relative '../lib/google/cloud/storage/bucket'
+# [START storage_list_soft_deleted_buckets]
+def list_soft_deleted_buckets
+  # The ID of your GCS bucket
+  # bucket_name = "your-unique-bucket-name"
+
+  # {}require "google/cloud/storage"
+  require_relative "../lib/google/cloud/storage"
+  require_relative "../lib/google/cloud/storage/project"
+  require_relative "../lib/google/cloud/storage/bucket"
   # require_relative '../lib/google/cloud/storage/bucket/list'
-  require_relative '../lib/google/cloud/storage/service'
+  require_relative "../lib/google/cloud/storage/service"
 
   storage = Google::Cloud::Storage.new
 
-  storage.buckets.each do |bucket|
+  # fetching soft deleted bucket list
+  deleted_buckets = storage.buckets soft_deleted: true
+
+  deleted_buckets.each do |bucket|
     puts bucket.name
   end
 end
-# [END storage_list_buckets]
+# [END storage_list_soft_deleted_buckets]
 
-list_buckets if $PROGRAM_NAME == __FILE__
+list_soft_deleted_buckets if $PROGRAM_NAME == __FILE__
