@@ -1475,25 +1475,15 @@ describe Google::Cloud::Storage::Bucket, :mock_storage do
   it "raises ArgumentError if upload_id is not provided to delete_resumable_upload" do
     new_file_name = random_file_path
     upload_id = "TEST_ID"
-
-    Tempfile.open ["google-cloud", ".txt"] do |tmpfile|
-      tmpfile.write "Hello world"
-      tmpfile.rewind
-      error = _ { bucket.delete_resumable_upload  }.must_raise ArgumentError
-      assert_match "wrong number of arguments", error.message
-    end
+    error = _ { bucket.delete_resumable_upload  }.must_raise ArgumentError
+    assert_match "wrong number of arguments", error.message
   end
 
   it "raises ArgumentError if upload_id as nil is provided to delete_resumable_upload" do
     new_file_name = random_file_path
     upload_id = nil
-
-    Tempfile.open ["google-cloud", ".txt"] do |tmpfile|
-      tmpfile.write "Hello world"
-      tmpfile.rewind
-      error = _ { bucket.delete_resumable_upload upload_id }.must_raise ArgumentError
-      assert_match "Upload Id missing", error.message
-    end
+    error = _ { bucket.delete_resumable_upload upload_id }.must_raise ArgumentError
+    assert_match "Upload Id missing", error.message
   end
 
   def create_file_gapi bucket=nil, name = nil
