@@ -22,18 +22,16 @@ require "time"
 require "securerandom"
 
 def create_bucket_helper bucket_name
-  storage_client = Google::Cloud::Storage.new
   retry_resource_exhaustion do
     storage_client.create_bucket bucket_name
   end
 end
 
-def get_project_id
-  Google::Cloud::Storage.new.project
+def storage_client
+   Google::Cloud::Storage.new
 end
 
 def delete_bucket_helper bucket_name
-  storage_client = Google::Cloud::Storage.new
   retry_resource_exhaustion do
     bucket = storage_client.bucket bucket_name
     return unless bucket
@@ -43,15 +41,6 @@ def delete_bucket_helper bucket_name
   end
 end
 
-def retry_job_status
-  5.times do
-    status = yield[/job_status-\s*(\w+)/, 1]
-    break unless status == "RUNNING"
-
-    puts "Job in Running status. Gonna try again"
-    sleep rand(10..16)
-  end
-end
 
 def retry_resource_exhaustion
   5.times do

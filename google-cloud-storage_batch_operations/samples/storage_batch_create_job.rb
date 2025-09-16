@@ -61,7 +61,10 @@ def create_job bucket_name:, prefix:, job_id:, project_id:
   request = Google::Cloud::StorageBatchOperations::V1::CreateJobRequest.new parent: parent, job_id: job_id, job: job
   result = client.create_job request
 
-  puts result.is_a?(Gapic::Operation) ? "The #{job_id} is created." : "The #{job_id} is not created."
+  ## Waiting for operation to complete
+  result.wait_until_done!
+  
+  puts result.done? ? "The #{job_id} is created." : "The #{job_id} is not created."
 end
 # [END storage_batch_create_job]
 
