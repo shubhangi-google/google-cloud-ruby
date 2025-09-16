@@ -28,7 +28,7 @@ def create_bucket_helper bucket_name
 end
 
 def storage_client
-   Google::Cloud::Storage.new
+  Google::Cloud::Storage.new
 end
 
 def delete_bucket_helper bucket_name
@@ -40,7 +40,6 @@ def delete_bucket_helper bucket_name
     bucket.delete
   end
 end
-
 
 def retry_resource_exhaustion
   5.times do

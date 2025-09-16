@@ -27,11 +27,11 @@ def cancel_job project_id:, job_id:
 
   request = Google::Cloud::StorageBatchOperations::V1::CancelJobRequest.new name: "#{parent}/jobs/#{job_id}"
   begin
-    result = client.cancel_job request
-    message=  "The #{job_id} is canceled."
-  rescue StandardError => e
+    client.cancel_job request
+    message = "The #{job_id} is canceled."
+  rescue Google::Cloud::Error
     ## We will get error if the job was already completed. this is an expected outcome
-    message= "#{job_id} was already completed or was not created."
+    message = "#{job_id} was already completed or was not created."
   end
   puts message
 end

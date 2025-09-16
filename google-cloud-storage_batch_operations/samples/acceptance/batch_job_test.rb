@@ -18,13 +18,16 @@ require_relative "../storage_batch_delete_job"
 require_relative "../storage_batch_cancel_job"
 require_relative "../storage_batch_list_job"
 require_relative "../storage_batch_get_job"
-require 'pry'
 
 describe "Batch jobs Snippets" do
-  let(:project_id)   { storage_client.project }
-  let(:bucket)         { create_bucket_helper random_bucket_name }
-  let(:file_content)   { "some content" }
+  let(:bucket)           { create_bucket_helper random_bucket_name }
+  let(:project_id)       { storage_client.project }
+  let(:file_content)     { "some content" }
   let(:remote_file_name) { "ruby_file_#{SecureRandom.hex}" }
+
+  before :all do
+    bucket
+  end
 
   after :all do
     delete_bucket_helper bucket.name
@@ -55,7 +58,7 @@ describe "Batch jobs Snippets" do
     end
 
     # Delete job
-     assert_output "The #{job_id} is deleted.\n" do
+    assert_output "The #{job_id} is deleted.\n" do
       delete_job project_id: project_id, job_id: job_id
     end
   end
