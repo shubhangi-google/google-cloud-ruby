@@ -28,7 +28,7 @@ def create_bucket_helper bucket_name
 end
 
 def storage_client
-  Google::Cloud::Storage.new
+  @storage_client ||= Google::Cloud::Storage.new
 end
 
 def delete_bucket_helper bucket_name

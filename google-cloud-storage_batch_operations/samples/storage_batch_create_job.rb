@@ -60,10 +60,14 @@ def create_job bucket_name:, prefix:, job_id:, project_id:
   request = Google::Cloud::StorageBatchOperations::V1::CreateJobRequest.new parent: parent, job_id: job_id, job: job
   create_job_operation = client.create_job request
 
-  ## Waiting for operation to complete
-  create_job_operation.wait_until_done!
-
-  puts create_job_operation.done? ? "The #{job_id} is created." : "The #{job_id} is not created."
+  begin
+    ## Waiting for operation to complete
+    create_job_operation.wait_until_done!
+    message = "The #{job_id} is created."
+  rescue
+    message = " #{job_id} not created"
+  end
+  puts message
 end
 # [END storage_batch_create_job]
 

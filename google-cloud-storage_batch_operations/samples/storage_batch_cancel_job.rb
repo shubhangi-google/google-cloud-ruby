@@ -29,7 +29,7 @@ def cancel_job project_id:, job_id:
   begin
     client.cancel_job request
     message = "The #{job_id} is canceled."
-  rescue Google::Cloud::Error
+  rescue Google::Cloud::FailedPreconditionError, Google::Cloud::NotFoundError
     ## We will get error if the job was already completed. this is an expected outcome
     message = "#{job_id} was already completed or was not created."
   end

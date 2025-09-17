@@ -44,11 +44,11 @@ describe "Batch jobs Snippets" do
 
     # List jobs
     out, _err = capture_io { list_job project_id: project_id }
-    assert_includes out, job_id, "#{job_id}not found in the list"
+    assert_includes out, job_id, "#{job_id} not found in the list"
 
     # Get job details
-    result = get_job project_id: project_id, job_id: job_id
-    assert_includes result, job_id, " #{job_id} not found"
+    out, _err = capture_io { get_job project_id: project_id, job_id: job_id }
+    assert_includes out, job_id, "#{job_id} not found"
 
     # Cancel job
     expected_output_pattern = /The #{job_id} is canceled\.|#{job_id} was already completed or was not created\./
