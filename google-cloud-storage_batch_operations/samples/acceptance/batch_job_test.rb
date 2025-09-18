@@ -20,17 +20,18 @@ require_relative "../storage_batch_list_job"
 require_relative "../storage_batch_get_job"
 
 describe "Batch jobs Snippets" do
-  let(:bucket)           { create_bucket_helper random_bucket_name }
+  let(:bucket_name)           { random_bucket_name }
   let(:project_id)       { storage_client.project }
   let(:file_content)     { "some content" }
   let(:remote_file_name) { "ruby_file_#{SecureRandom.hex}" }
 
   before :all do
-    bucket
+    bucket = create_bucket_helper bucket_name
+    bucket.create_file StringIO.new(file_content), remote_file_name
   end
 
   after :all do
-    delete_bucket_helper bucket.name
+    delete_bucket_helper bucket_name
   end
 
   it "creates, lists, gets, cancels, and deletes a batch job in sequence" do
@@ -38,8 +39,7 @@ describe "Batch jobs Snippets" do
 
     # Create job
     assert_output "The #{job_id} is created.\n" do
-      bucket.create_file StringIO.new(file_content), remote_file_name
-      create_job bucket_name: bucket.name, prefix: "ruby_file", job_id: job_id, project_id: project_id
+      create_job bucket_name: bucket_name, prefix: "ruby_file", job_id: job_id, project_id: project_id
     end
 
     # List jobs
