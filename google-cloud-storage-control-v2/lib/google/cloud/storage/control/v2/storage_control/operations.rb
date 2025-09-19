@@ -303,6 +303,7 @@ module Google
                                        retry_policy: @config.rpcs.get_operation.retry_policy
 
                 options.apply_defaults timeout:      @config.timeout,
+                                       metadata:     @config.metadata,
                                        retry_policy: @config.retry_policy
 
                 @operations_stub.call_rpc :get_operation, request, options: options do |response, operation|
