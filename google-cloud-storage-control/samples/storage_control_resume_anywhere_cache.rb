@@ -24,8 +24,8 @@ def resume_anywhere_cache bucket_name:, anywhere_cache_id:
 
   # Create a client object. The client can be reused for multiple calls.
   storage_control_client = Google::Cloud::Storage::Control.storage_control
-  parent = "projects/_/buckets/#{bucket_name}"
   # Set project to "_" to signify global bucket
+  parent = "projects/_/buckets/#{bucket_name}"
   name = "#{parent}/anywhereCaches/#{anywhere_cache_id}"
 
   # Create a request.

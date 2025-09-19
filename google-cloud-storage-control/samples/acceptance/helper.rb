@@ -72,7 +72,7 @@ end
 # @param bucket_name [String] The name of the Google Cloud Storage bucket.
 # @return [Integer] The final count of Anywhere Caches, which will be 0
 # the method completes successfully after all caches are deleted.
-def count_anywhere_caches bucket_name = nil
+def count_anywhere_caches bucket_name 
   storage_control_client = Google::Cloud::Storage::Control.storage_control
 
   # Set project to "_" to signify global bucket

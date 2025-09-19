@@ -32,7 +32,8 @@ describe "Storage Control Anywhere Cache" do
   end
 
   after :all do
-    delete_bucket_helper bucket_name until count_anywhere_caches(bucket_name).zero?
+    count_anywhere_caches bucket_name # Ensure all caches are deleted before deleting bucket
+    delete_bucket_helper bucket_name
   end
 
   it "handles Anywhere cache lifecycle in sequence" do
