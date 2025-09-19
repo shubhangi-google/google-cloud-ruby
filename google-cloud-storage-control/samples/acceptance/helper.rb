@@ -16,6 +16,7 @@ require "google/cloud/storage"
 require "minitest/autorun"
 require "minitest/focus"
 require "minitest/hooks/default"
+require "google/cloud/storage/control"
 
 def random_bucket_name
   t = Time.now.utc.iso8601.gsub ":", "-"
@@ -61,3 +62,33 @@ def retry_resource_exhaustion
   end
   raise Google::Cloud::ResourceExhaustedError, "Maybe take a break from creating and deleting buckets for a bit"
 end
+
+# Waits until all Anywhere Caches for a given bucket are deleted.
+#
+# This method polls the Storage Control API, listing the Anywhere Caches
+# associated with the specified bucket. If caches are found, it waits and
+# retries with an exponential backoff strategy until no caches remain.
+#
+# @param bucket_name [String] The name of the Google Cloud Storage bucket.
+# @return [Integer] The final count of Anywhere Caches, which will be 0
+# the method completes successfully after all caches are deleted.
+def count_anywhere_caches bucket_name = nil
+  storage_control_client = Google::Cloud::Storage::Control.storage_control
+
+  # Set project to "_" to signify global bucket
+  parent = "projects/_/buckets/#{bucket_name}"
+  request = Google::Cloud::Storage::Control::V2::ListAnywhereCachesRequest.new(
+    parent: parent
+  )
+  result = storage_control_client.list_anywhere_caches request
+  min_delay = 180 # 3 minutes
+  max_delay = 900 # 15 minutes
+  while result.response.anywhere_caches.count != 0
+    puts "Cache not deleted yet, Retrying in #{min_delay} seconds."
+    sleep min_delay
+    min_delay = [min_delay * 2, max_delay].min # Exponential backoff with a max delay
+    result = storage_control_client.list_anywhere_caches request
+  end
+
+  result.response.anywhere_caches.count
+end 
