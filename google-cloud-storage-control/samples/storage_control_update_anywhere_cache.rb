@@ -14,7 +14,6 @@
 
 # [START storage_control_update_anywhere_cache]
 require "google/cloud/storage/control"
-require "google/cloud/storage/control/v2"
 
 def update_anywhere_cache bucket_name:, anywhere_cache_id:
   # The Name of your GCS bucket
@@ -57,7 +56,6 @@ def update_anywhere_cache bucket_name:, anywhere_cache_id:
       result = storage_control_client.get_anywhere_cache get_request
     end
     puts "AnywhereCache #{result.name} updated"
-    
   rescue Google::Cloud::Error => e
     puts "Error updating AnywhereCache: #{e.message}"
   end
