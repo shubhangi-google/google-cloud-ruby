@@ -21,6 +21,7 @@ require_relative "../storage_control_update_anywhere_cache"
 require_relative "../storage_control_pause_anywhere_cache"
 require_relative "../storage_control_resume_anywhere_cache"
 require_relative "../storage_control_disable_anywhere_cache"
+require 'pry'
 
 describe "Storage Control Anywhere Cache" do
   let(:bucket_name) { random_bucket_name }
@@ -29,11 +30,11 @@ describe "Storage Control Anywhere Cache" do
   let(:anywhere_cache_name) { "projects/_/buckets/#{bucket_name}/anywhereCaches/#{zone}" }
 
   before :all do
-    @bucket = create_bucket_helper bucket_name
+    bucket = create_bucket_helper bucket_name
   end
 
-  after do
-    delete_bucket_helper bucket_name until count_anywhere_caches(bucket_name).zero?
+  after :all do
+    delete_bucket_helper bucket_name #{}until count_anywhere_caches(bucket_name).zero?
   end
 
   it "handles Anywhere cache lifecycle in sequence" do
@@ -74,14 +75,14 @@ describe "Storage Control Anywhere Cache" do
   end
 end
 
-def count_anywhere_caches bucket_name
-  sleep 900
-  storage_control_client = Google::Cloud::Storage::Control.storage_control
-  # Set project to "_" to signify global bucket
-  parent = "projects/_/buckets/#{bucket_name}"
-  request = Google::Cloud::Storage::Control::V2::ListAnywhereCachesRequest.new(
-    parent: parent
-  )
-  result = storage_control_client.list_anywhere_caches request
-  result.response.anywhere_caches.count
-end
+# def count_anywhere_caches bucket_name
+#   sleep 900
+#   storage_control_client = Google::Cloud::Storage::Control.storage_control
+#   # Set project to "_" to signify global bucket
+#   parent = "projects/_/buckets/#{bucket_name}"
+#   request = Google::Cloud::Storage::Control::V2::ListAnywhereCachesRequest.new(
+#     parent: parent
+#   )
+#   result = storage_control_client.list_anywhere_caches request
+#   result.response.anywhere_caches.count
+# end

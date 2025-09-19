@@ -283,6 +283,7 @@ module Google
 
                 # Customize the options with defaults
                 metadata = @config.rpcs.get_operation.metadata.to_h
+                binding.pry
 
                 # Set x-goog-api-client, x-goog-user-project and x-goog-api-version headers
                 metadata[:"x-goog-api-client"] ||= ::Gapic::Headers.x_goog_api_client \
@@ -304,7 +305,6 @@ module Google
                                        retry_policy: @config.rpcs.get_operation.retry_policy
 
                 options.apply_defaults timeout:      @config.timeout,
-                                       metadata:     @config.metadata,
                                        retry_policy: @config.retry_policy
 
                 @operations_stub.call_rpc :get_operation, request, options: options do |response, operation|

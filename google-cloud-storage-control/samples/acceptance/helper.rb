@@ -26,9 +26,11 @@ def random_folder_name prefix: "ruby-storage-control-folder-samples-test-"
   t = Time.now.utc.iso8601.gsub ":", "-"
   "#{prefix}-#{t}-#{SecureRandom.hex 4}".downcase
 end
+def storage_client
+  @storage_client ||= Google::Cloud::Storage.new
+end
 
 def create_bucket_helper bucket_name, uniform_bucket_level_access: nil, hierarchical_namespace: nil
-  storage_client = Google::Cloud::Storage.new
   retry_resource_exhaustion do
     storage_client.create_bucket bucket_name do |b|
       b.uniform_bucket_level_access = uniform_bucket_level_access
@@ -38,7 +40,6 @@ def create_bucket_helper bucket_name, uniform_bucket_level_access: nil, hierarch
 end
 
 def delete_bucket_helper bucket_name
-  storage_client = Google::Cloud::Storage.new
   retry_resource_exhaustion do
     bucket = storage_client.bucket bucket_name
     return unless bucket
