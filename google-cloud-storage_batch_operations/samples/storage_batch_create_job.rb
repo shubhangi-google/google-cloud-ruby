@@ -15,19 +15,25 @@
 # [START storage_batch_create_job]
 require "google/cloud/storage_batch_operations"
 
+# Creates a Storage Batch Operations job to delete objects in a bucket
+# that match a given prefix. The deletion is a "soft delete", meaning
+# objects can be recovered if versioning is enabled on the bucket.
+#
+# @param bucket_name [String] The name of the Google Cloud Storage bucket.
+# @param prefix [String] The prefix of the objects to be included in the job.
+#   The job will operate on all objects whose names start with this prefix.
+# @param job_id [String] A unique identifier for the job.
+# @param project_id [String] The ID of the Google Cloud project where the job will be created.
+#
+# @example
+#   create_job(
+#     bucket_name: "your-unique-bucket-name",
+#     prefix: "test-files/",
+#     job_id: "my-delete-job-123",
+#     project_id: "your-gcp-project-id"
+#   )
+#
 def create_job bucket_name:, prefix:, job_id:, project_id:
-  # The name of your GCS bucket
-  # bucket_name = "your-unique-bucket-name"
-
-  # Prefix is the first part of filename on which job has to be executed
-  # prefix = 'test'
-
-  # The ID of your Storage batch operation job
-  # job_id = "your-job-id"
-
-  # The ID of your project
-  # project_id = "your-project-id"
-
 
   client = Google::Cloud::StorageBatchOperations.storage_batch_operations
 
@@ -60,12 +66,15 @@ def create_job bucket_name:, prefix:, job_id:, project_id:
   request = Google::Cloud::StorageBatchOperations::V1::CreateJobRequest.new parent: parent, job_id: job_id, job: job
   create_job_operation = client.create_job request
 
+  get_request = Google::Cloud::StorageBatchOperations::V1::GetJobRequest.new name: "#{parent}/jobs/#{job_id}"
+
   begin
     ## Waiting for operation to complete
     create_job_operation.wait_until_done!
-    message = "The #{job_id} is created."
+    new_job = client.get_job get_request
+    message = "The #{new_job.name} is created."
   rescue StandardError
-    message = " #{job_id} not created"
+    message = "Failed to create job #{job_id}. Error: #{create_job_operation.error.message}"
   end
   puts message
 end

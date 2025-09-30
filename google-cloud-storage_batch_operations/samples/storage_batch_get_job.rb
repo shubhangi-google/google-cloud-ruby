@@ -15,12 +15,15 @@
 # [START storage_batch_get_job]
 require "google/cloud/storage_batch_operations"
 
-def get_job project_id:, job_id:
-  # The ID of your project
-  # project_id = "your-project-id"
+# Gets a Storage Batch Operations job.
+#
+# @example
+#   get_job project_id: "your-project-id", job_id: "your-job-id"
+#
+# @param project_id [String] The ID of your Google Cloud project.
+# @param job_id [String] The ID of your Storage Batch Operations job.
 
-  # The ID of your Storage batch operation job
-  # job_id= "your-job-id"
+def get_job project_id:, job_id:
 
   client = Google::Cloud::StorageBatchOperations.storage_batch_operations
   parent = "projects/#{project_id}/locations/global"
