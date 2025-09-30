@@ -30,7 +30,7 @@ require "google/cloud/storage_batch_operations"
 #     bucket_name: "your-unique-bucket-name",
 #     prefix: "test-files/",
 #     job_id: "my-delete-job-123",
-#     project_id: "your-gcp-project-id"
+#     project_id: "your-project-id"
 #   )
 #
 def create_job bucket_name:, prefix:, job_id:, project_id:
