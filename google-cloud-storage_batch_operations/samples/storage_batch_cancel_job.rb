@@ -27,21 +27,27 @@ require "google/cloud/storage_batch_operations"
 #   cancel_job project_id: "your-project-id", job_id: "your-job-id"
 #
 def cancel_job project_id:, job_id:
-
   client = Google::Cloud::StorageBatchOperations.storage_batch_operations
   parent = "projects/#{project_id}/locations/global"
 
   request = Google::Cloud::StorageBatchOperations::V1::CancelJobRequest.new name: "#{parent}/jobs/#{job_id}"
-  begin
-    client.cancel_job request
-    message = "The #{job_id} is canceled."
-  rescue Google::Cloud::FailedPreconditionError
-    # This error is thrown when the job is already completed.
-    message = "#{job_id} was already completed."
-  rescue Google::Cloud::NotFoundError
-    # This error is thrown when the job does not exist.
-    message = "#{job_id} not found."
 
+  # To fetch job details using get_job
+  get_request = Google::Cloud::StorageBatchOperations::V1::GetJobRequest.new name: "#{parent}/jobs/#{job_id}"
+
+  begin
+    result = client.cancel_job request
+    ## Fetch the job
+    job_detail = client.get_job get_request
+    message = "Storage Batch Operations job #{job_detail.name} is canceled."
+  rescue Google::Cloud::FailedPreconditionError
+    ## Fetch the job
+    job_detail = client.get_job get_request
+    # This error is thrown when the job is already completed.
+    message = "Storage Batch Operations job #{job_detail.name} was already completed."
+  rescue StandardError
+    # This error is thrown when the job is not canceled.
+    message = "Failed to cancel job #{job_id}. Error: #{result.error.message}"
   end
   puts message
 end

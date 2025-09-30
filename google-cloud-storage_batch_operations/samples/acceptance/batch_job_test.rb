@@ -40,7 +40,7 @@ describe "Storage Batch Operations" do
     job_name = "#{job_name_prefix}#{job_id}"
 
     # Create job
-    assert_output(/The #{job_name} is created./) do
+    assert_output(/Storage Batch Operations job #{job_name} is created./) do
       create_job bucket_name: bucket_name, prefix: "ruby_file", job_id: job_id, project_id: project_id
     end
 
@@ -50,12 +50,12 @@ describe "Storage Batch Operations" do
     end
 
     # Get job details
-    assert_output(/Found job_name- #{job_name}, job_status- /) do
+    assert_output(/Storage Batch Operations job Found - #{job_name}, job_status- /) do
       get_job project_id: project_id, job_id: job_id
     end
 
     # Cancel job
-    expected_output_pattern = /The #{job_id} is canceled\.|#{job_id} was already completed\./
+    expected_output_pattern = /Storage Batch Operations job #{job_name} (is canceled|was already completed)\./
     assert_output expected_output_pattern do
       cancel_job project_id: project_id, job_id: job_id
     end

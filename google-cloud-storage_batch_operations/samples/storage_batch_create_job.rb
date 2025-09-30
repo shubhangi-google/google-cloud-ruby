@@ -29,12 +29,11 @@ require "google/cloud/storage_batch_operations"
 #   create_job(
 #     bucket_name: "your-unique-bucket-name",
 #     prefix: "test-files/",
-#     job_id: "my-delete-job-123",
+#     job_id: "your-job-id",
 #     project_id: "your-project-id"
 #   )
 #
 def create_job bucket_name:, prefix:, job_id:, project_id:
-
   client = Google::Cloud::StorageBatchOperations.storage_batch_operations
 
   parent = "projects/#{project_id}/locations/global"
@@ -66,14 +65,17 @@ def create_job bucket_name:, prefix:, job_id:, project_id:
   request = Google::Cloud::StorageBatchOperations::V1::CreateJobRequest.new parent: parent, job_id: job_id, job: job
   create_job_operation = client.create_job request
 
+  # To fetch job details using get_job to confirm creation
   get_request = Google::Cloud::StorageBatchOperations::V1::GetJobRequest.new name: "#{parent}/jobs/#{job_id}"
 
   begin
     ## Waiting for operation to complete
     create_job_operation.wait_until_done!
-    new_job = client.get_job get_request
-    message = "The #{new_job.name} is created."
+    ## Fetch the newly created job to confirm creation
+    job_detail = client.get_job get_request
+    message = "Storage Batch Operations job #{job_detail.name} is created."
   rescue StandardError
+    # This error is thrown when the job is not created.
     message = "Failed to create job #{job_id}. Error: #{create_job_operation.error.message}"
   end
   puts message
