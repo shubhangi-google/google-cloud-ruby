@@ -40,7 +40,7 @@ describe "Storage Control Anywhere Cache" do
     out_create, _err = capture_io do
       create_anywhere_cache bucket_name: bucket_name, zone: zone
     end
-    assert_includes out_create, "Successfully running anywhereCache - #{anywhere_cache_name}"
+    assert_includes out_create, "Successfully created anywhereCache - #{anywhere_cache_name}"
 
     out_list, _err = capture_io do
       list_anywhere_caches bucket_name: bucket_name
@@ -70,6 +70,6 @@ describe "Storage Control Anywhere Cache" do
     out_disable, _err = capture_io do
       disable_anywhere_cache bucket_name: bucket_name, anywhere_cache_id: zone
     end
-    assert_includes out_disable, "Successfully disabled anywhereCache for #{anywhere_cache_name}"
+    assert_includes out_disable, "Successfully disabled anywhereCache - #{anywhere_cache_name}"
   end
 end

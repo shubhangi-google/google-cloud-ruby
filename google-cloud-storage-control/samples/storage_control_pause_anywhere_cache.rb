@@ -46,7 +46,7 @@ def pause_anywhere_cache bucket_name:, anywhere_cache_id:
   begin
     result = storage_control_client.pause_anywhere_cache request
     puts "Successfully #{result.state&.downcase} anywhereCache - #{result.name}"
-  rescue StandardError => e
+  rescue Google::Cloud::Error => e
     puts "Error pausing anywhereCache: #{e.message}"
   end
 end

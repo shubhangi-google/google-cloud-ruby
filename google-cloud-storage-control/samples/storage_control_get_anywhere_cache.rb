@@ -45,8 +45,8 @@ def get_anywhere_cache bucket_name:, anywhere_cache_id:
   begin
     result = storage_control_client.get_anywhere_cache request
     puts "Successfully fetched anywhereCache - #{result.name}"
-  rescue StandardError => e
-    puts "Error fetching anywhereCache: #{e.message}"
+  rescue Google::Cloud::Error => e
+    puts "Error Fetching AnywhereCache: #{e.message}"
   end
 end
 # [END storage_control_get_anywhere_cache]

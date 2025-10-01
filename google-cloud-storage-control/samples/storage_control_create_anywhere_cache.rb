@@ -71,7 +71,7 @@ def create_anywhere_cache bucket_name:, zone:
       result = storage_control_client.get_anywhere_cache get_request
     end
     message = "Successfully created anywhereCache - #{result.name}"
-  rescue StandardError => e
+  rescue Google::Cloud::Error => e
     message = "Failed to create AnywhereCache. Error: #{e.message}"
   end
   puts message

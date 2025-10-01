@@ -69,7 +69,7 @@ def update_anywhere_cache bucket_name:, anywhere_cache_id:
       result = storage_control_client.get_anywhere_cache get_request
     end
     puts "Successfully updated anywhereCache - #{result.name}"
-  rescue StandardError => e
+  rescue Google::Cloud::Error => e
     puts "Error updating anywhereCache: #{e.message}"
   end
 end

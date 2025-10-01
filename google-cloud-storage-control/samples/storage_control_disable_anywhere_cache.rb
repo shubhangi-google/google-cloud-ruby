@@ -44,8 +44,8 @@ def disable_anywhere_cache bucket_name:, anywhere_cache_id:
   # The cache can be re-enabled later.
   begin
     result = storage_control_client.disable_anywhere_cache request
-    puts "Successfully #{result.state} anywhereCache - #{result.name}"
-  rescue StandardError => e
+    puts "Successfully #{result.state&.downcase} anywhereCache - #{result.name}"
+  rescue Google::Cloud::Error => e
     puts "Error disabling anywhereCache: #{e.message}"
   end
 end
