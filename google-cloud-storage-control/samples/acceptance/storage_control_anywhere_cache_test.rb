@@ -55,7 +55,7 @@ describe "Storage Control Anywhere Cache" do
     out_update, _err = capture_io do
       update_anywhere_cache bucket_name: bucket_name, anywhere_cache_id: zone
     end
-    assert_includes out_update, "Successfully updated anywhereCache - #{anywhere_cache_name}"
+    assert_includes out_update, "Successfully updated anywhereCache - #{anywhere_cache_name}."
 
     out_pause, _err = capture_io do
       pause_anywhere_cache bucket_name: bucket_name, anywhere_cache_id: zone
