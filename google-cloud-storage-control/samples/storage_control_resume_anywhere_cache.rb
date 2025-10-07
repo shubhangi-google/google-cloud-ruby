@@ -47,9 +47,9 @@ def resume_anywhere_cache bucket_name:, anywhere_cache_id:
   # The cache is identified by the specified ID.
   begin
     result = storage_control_client.resume_anywhere_cache request
-    puts "Successfully resumed anywhereCache - #{result.name}"
+    puts "Successfully resumed anywhereCache - #{result.name}."
   rescue Google::Cloud::Error => e
-    puts "Error resuming anywhereCache: #{e.message}"
+    puts "Failed to resume AnywhereCache. Error: #{e.message}"
   end
 end
 # [END storage_control_resume_anywhere_cache]

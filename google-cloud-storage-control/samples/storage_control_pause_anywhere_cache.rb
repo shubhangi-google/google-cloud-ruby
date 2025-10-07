@@ -45,9 +45,9 @@ def pause_anywhere_cache bucket_name:, anywhere_cache_id:
   # The cache is paused in the specified bucket.
   begin
     result = storage_control_client.pause_anywhere_cache request
-    puts "Successfully #{result.state&.downcase} anywhereCache - #{result.name}"
+    puts "Successfully #{result.state&.downcase} anywhereCache - #{result.name}."
   rescue Google::Cloud::Error => e
-    puts "Error pausing anywhereCache: #{e.message}"
+    puts "Failed to pause AnywhereCache. Error: #{e.message}"
   end
 end
 # [END storage_control_pause_anywhere_cache]
