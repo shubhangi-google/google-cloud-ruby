@@ -55,11 +55,16 @@ module Google
                 ::Digest::MD5.file(f).base64digest
               end
             else # StringIO
-              (local_file = ::File.open Pathname(local_file)) unless local_file.respond_to? :rewind
-              local_file.rewind
-              md5 = ::Digest::MD5.base64digest local_file.read
-              local_file.rewind
-              md5
+              file_to_close = nil
+              file_to_close = local_file = ::File.open(Pathname(local_file).to_path, "rb") unless local_file.respond_to?(:rewind)
+              begin
+                local_file.rewind
+                md5 = ::Digest::MD5.base64digest local_file.read
+                local_file.rewind
+                md5
+              ensure
+                file_to_close.close if file_to_close.respond_to?(:close) && !file_to_close.closed?
+              end
             end
           end
 
@@ -69,11 +74,16 @@ module Google
                 ::Digest::CRC32c.file(f).base64digest
               end
             else # StringIO
-              (local_file = ::File.open Pathname(local_file)) unless local_file.respond_to? :rewind
-              local_file.rewind
-              crc32c = ::Digest::CRC32c.base64digest local_file.read
-              local_file.rewind
-              crc32c
+              file_to_close = nil
+              file_to_close = local_file = ::File.open(Pathname(local_file).to_path, "rb") unless local_file.respond_to?(:rewind)
+              begin
+                local_file.rewind
+                crc32c = ::Digest::CRC32c.base64digest local_file.read
+                local_file.rewind
+                crc32c
+              ensure
+                file_to_close.close if file_to_close.respond_to?(:close) && !file_to_close.closed?
+              end
             end
           end
         end
