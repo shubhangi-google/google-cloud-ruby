@@ -1806,7 +1806,9 @@ module Google
           path ||= file if file.is_a? String
           raise ArgumentError, "must provide path" if path.nil?
           # setting crc32c as default checksum algorithm if none provided for integrity check
-          checksum = :crc32c if checksum.nil? && crc32c.nil? && md5.nil?
+          if checksum == true || [checksum, crc32c, md5].all?(&:nil?)
+            checksum = :crc32c
+          end
           crc32c = crc32c_for file, checksum, crc32c
           md5 = md5_for file, checksum, md5
 

@@ -264,6 +264,43 @@ describe Google::Cloud::Storage::Bucket, :lazy, :mock_storage do
     end
   end
 
+  it "creates a file with no checksum" do
+    new_file_name = random_file_path
+
+    Tempfile.open ["google-cloud", ".txt"] do |tmpfile|
+      tmpfile.write "Hello world!"
+      tmpfile.rewind
+
+      mock = Minitest::Mock.new
+      mock.expect :insert_object, create_file_gapi(bucket.name, new_file_name),
+        [bucket.name, empty_file_gapi(checksum: false)], **insert_object_args(name: new_file_name, upload_source: tmpfile, options: {retries: 0})
+
+      bucket.service.mocked_service = mock
+
+      bucket.create_file tmpfile, new_file_name, checksum: false
+      mock.verify
+    end
+  end
+
+  it "creates a file with crc32c if checksum is true" do
+    new_file_name = random_file_path
+
+    Tempfile.open ["google-cloud", ".txt"] do |tmpfile|
+      tmpfile.write "Hello world!"
+      tmpfile.rewind
+
+      mock = Minitest::Mock.new
+      mock.expect :insert_object, create_file_gapi(bucket.name, new_file_name),
+        [bucket.name, empty_file_gapi(checksum: true, crc32c: "e5jnUQ==")], **insert_object_args(name: new_file_name, upload_source: tmpfile, options: {retries: 0})
+
+      bucket.service.mocked_service = mock
+
+      bucket.create_file tmpfile, new_file_name, checksum: true
+
+      mock.verify
+    end
+  end
+
   it "creates a file with attributes" do
     new_file_name = random_file_path
 
@@ -1109,16 +1146,18 @@ describe Google::Cloud::Storage::Bucket, :lazy, :mock_storage do
   def empty_file_gapi cache_control: nil, content_disposition: nil,
                       content_encoding: nil, content_language: nil,
                       content_type: nil, crc32c: nil, md5: nil, metadata: nil,
-                      storage_class: nil
-    # Set crc32c if both md5 and crc32c are not provided
-    crc32c = set_crc32c_as_default(md5, crc32c)
+                      storage_class: nil, checksum: nil
 
+    # Set crc32c if both md5 and crc32c are not provided
+    if checksum != false
+     crc32c = set_crc32c_as_default(md5, crc32c)
+    end
     params = {
       cache_control: cache_control, content_type: content_type,
       content_disposition: content_disposition, md5_hash: md5,
       content_encoding: content_encoding, crc32c: crc32c,
       content_language: content_language, metadata: metadata,
-      storage_class: storage_class }.delete_if { |_k, v| v.nil? }
+      storage_class: storage_class, checksum: checksum }.delete_if { |_k, v| v.nil? }
     Google::Apis::StorageV1::Object.new(**params)
   end
 
