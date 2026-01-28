@@ -141,7 +141,7 @@ describe Google::Cloud::Storage::Bucket, :encryption, :mock_storage do
       content_disposition: content_disposition, md5_hash: md5,
       content_encoding: content_encoding, crc32c: crc32c,
       content_language: content_language, metadata: metadata,
-      storage_class: storage_class, checksum: checksum }.delete_if { |_k, v| v.nil? }
+      storage_class: storage_class}.delete_if { |_k, v| v.nil? }
     Google::Apis::StorageV1::Object.new(**params)
   end
 

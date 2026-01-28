@@ -1502,7 +1502,7 @@ describe Google::Cloud::Storage::Bucket, :mock_storage do
       content_encoding: content_encoding, crc32c: crc32c,
       content_language: content_language, metadata: metadata,
       storage_class: storage_class, temporary_hold: temporary_hold,
-      event_based_hold: event_based_hold, checksum: checksum }.delete_if { |_k, v| v.nil? }
+      event_based_hold: event_based_hold }.delete_if { |_k, v| v.nil? }
     Google::Apis::StorageV1::Object.new(**params)
   end
 
