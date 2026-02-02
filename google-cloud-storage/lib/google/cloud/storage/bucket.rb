@@ -1806,8 +1806,8 @@ module Google
           path ||= file.path if file.respond_to? :path
           path ||= file if file.is_a? String
           raise ArgumentError, "must provide path" if path.nil?
-          # if no checksum type is provided, and no specific checksum is provided,
-          # default to crc32c
+          # If no checksum type or specific value is provided, the default will be set to crc32c. 
+          # If the checksum is set to false, it will be disabled.
           if [checksum, crc32c, md5].all?(&:nil?) || checksum == true
             checksum = :crc32c
           end

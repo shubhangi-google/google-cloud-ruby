@@ -1148,7 +1148,8 @@ describe Google::Cloud::Storage::Bucket, :lazy, :mock_storage do
                       content_type: nil, crc32c: nil, md5: nil, metadata: nil,
                       storage_class: nil, checksum: nil
 
-    # Set crc32c if no checksum type is provided, and no specific checksum is provided
+    # If no checksum type or specific value is provided, the default will be set to crc32c. 
+    # If the checksum is set to false, it will be disabled.
     crc32c ||= set_crc32c_as_default md5, crc32c, checksum
     params = {
       cache_control: cache_control, content_type: content_type,
