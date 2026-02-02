@@ -130,18 +130,17 @@ describe Google::Cloud::Storage::Bucket, :encryption, :mock_storage do
   def empty_file_gapi cache_control: nil, content_disposition: nil,
                       content_encoding: nil, content_language: nil,
                       content_type: nil, crc32c: nil, md5: nil, metadata: nil,
-                      storage_class: nil, checksum: nil
+                      storage_class: nil, checksum: nil, content: nil
 
     # Set crc32c if both md5 and crc32c are not provided
-    if checksum != false
-     crc32c = set_crc32c_as_default(md5, crc32c)
-    end
+    crc32c ||= set_crc32c_as_default md5, crc32c, content, checksum
+
     params = {
       cache_control: cache_control, content_type: content_type,
       content_disposition: content_disposition, md5_hash: md5,
       content_encoding: content_encoding, crc32c: crc32c,
       content_language: content_language, metadata: metadata,
-      storage_class: storage_class}.delete_if { |_k, v| v.nil? }
+      storage_class: storage_class }.delete_if { |_k, v| v.nil? }
     Google::Apis::StorageV1::Object.new(**params)
   end
 
