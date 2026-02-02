@@ -129,7 +129,7 @@ describe Google::Cloud::Storage::Bucket, :mock_storage do
     crc32c = Google::Cloud::Storage::File::Verifier.crc32c_for new_file_contents
     mock = Minitest::Mock.new
     mock.expect :insert_object, create_file_gapi(bucket.name, new_file_name),
-      [bucket.name, empty_file_gapi(crc32c: crc32c, content: new_file_contents.read)], **insert_object_args(name: new_file_name, upload_source: new_file_contents, options: {retries: 0})
+      [bucket.name, empty_file_gapi(crc32c: crc32c)], **insert_object_args(name: new_file_name, upload_source: new_file_contents, options: {retries: 0})
 
     bucket.service.mocked_service = mock
 
@@ -291,7 +291,7 @@ describe Google::Cloud::Storage::Bucket, :mock_storage do
 
     mock = Minitest::Mock.new
     mock.expect :insert_object, create_file_gapi(bucket.name, new_file_name),
-      [bucket.name, empty_file_gapi(crc32c: "crUfeA==", content: new_file_contents.read)], **insert_object_args(name: new_file_name, upload_source: new_file_contents, options: {retries: 0})
+      [bucket.name, empty_file_gapi(crc32c: "crUfeA==")], **insert_object_args(name: new_file_name, upload_source: new_file_contents, options: {retries: 0})
 
     bucket.service.mocked_service = mock
 
