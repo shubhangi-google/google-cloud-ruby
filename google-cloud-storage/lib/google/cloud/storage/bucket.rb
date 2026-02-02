@@ -1636,6 +1636,8 @@ module Google
         #
         #   Acceptable values are:
         #
+        #   * true - Calculate and provide a checksum using the CRC32c hash.
+        #   * false - Do not calculate or provide a checksum.
         #   * `md5` - Calculate and provide a checksum using the MD5 hash.
         #   * `crc32c` - Calculate and provide a checksum using the CRC32c hash.
         #   * `all` - Calculate and provide checksums for all available verifications.

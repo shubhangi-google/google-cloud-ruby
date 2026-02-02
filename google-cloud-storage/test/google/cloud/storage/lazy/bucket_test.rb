@@ -1146,10 +1146,10 @@ describe Google::Cloud::Storage::Bucket, :lazy, :mock_storage do
   def empty_file_gapi cache_control: nil, content_disposition: nil,
                       content_encoding: nil, content_language: nil,
                       content_type: nil, crc32c: nil, md5: nil, metadata: nil,
-                      storage_class: nil, checksum: nil, content: nil
+                      storage_class: nil, checksum: nil
 
     # Set crc32c if both md5 and crc32c are not provided
-    crc32c ||= set_crc32c_as_default md5, crc32c, content, checksum
+    crc32c ||= set_crc32c_as_default md5, crc32c, checksum
     params = {
       cache_control: cache_control, content_type: content_type,
       content_disposition: content_disposition, md5_hash: md5,

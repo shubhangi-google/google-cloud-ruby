@@ -613,10 +613,10 @@ class MockStorage < Minitest::Spec
     Google::Apis::StorageV1::Object.from_json file_hash
   end
 
-  def set_crc32c_as_default md5, crc32c, content, checksum
+  def set_crc32c_as_default md5, crc32c, checksum
     # Set crc32c if both md5 and crc32c are not provided
     if [checksum, crc32c, md5].all?(&:nil?) || checksum == true
-      crc32c = Google::Cloud::Storage::File::Verifier.crc32c_for(StringIO.new(content || "Hello world"))
+      crc32c = Google::Cloud::Storage::File::Verifier.crc32c_for(StringIO.new("Hello world"))
     end
     crc32c
   end
