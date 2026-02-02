@@ -1491,7 +1491,7 @@ describe Google::Cloud::Storage::Bucket, :mock_storage do
                       storage_class: nil, temporary_hold: nil,
                       event_based_hold: nil, checksum: nil
 
-    # Set crc32c if both md5 and crc32c are not provided
+    # Set crc32c if no checksum type is provided, and no specific checksum is provided
     crc32c ||= set_crc32c_as_default md5, crc32c, checksum
     params = {
       cache_control: cache_control, content_type: content_type,

@@ -1636,8 +1636,8 @@ module Google
         #
         #   Acceptable values are:
         #
-        #   * true [Boolean] - Calculate and provide a checksum using the CRC32c hash.
-        #   * false [Boolean] - Do not calculate or provide a checksum.
+        #   * `true` [Boolean] - Calculate and provide a checksum using the CRC32c hash.
+        #   * `false` [Boolean] - Do not calculate or provide a checksum.
         #   * `md5` - Calculate and provide a checksum using the MD5 hash.
         #   * `crc32c` - Calculate and provide a checksum using the CRC32c hash.
         #   * `all` - Calculate and provide checksums for all available verifications.
@@ -1806,7 +1806,8 @@ module Google
           path ||= file.path if file.respond_to? :path
           path ||= file if file.is_a? String
           raise ArgumentError, "must provide path" if path.nil?
-          # setting crc32c as default checksum algorithm if none provided for integrity check
+          # if no checksum type is provided, and no specific checksum is provided,
+          # default to crc32c
           if [checksum, crc32c, md5].all?(&:nil?) || checksum == true
             checksum = :crc32c
           end

@@ -132,7 +132,7 @@ describe Google::Cloud::Storage::Bucket, :encryption, :mock_storage do
                       content_type: nil, crc32c: nil, md5: nil, metadata: nil,
                       storage_class: nil, checksum: nil
 
-    # Set crc32c if both md5 and crc32c are not provided
+    # Set crc32c if no checksum type is provided, and no specific checksum is provided
     crc32c ||= set_crc32c_as_default md5, crc32c, checksum
 
     params = {

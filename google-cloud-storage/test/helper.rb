@@ -614,7 +614,7 @@ class MockStorage < Minitest::Spec
   end
 
   def set_crc32c_as_default md5, crc32c, checksum
-    # Set crc32c if both md5 and crc32c are not provided
+    # if no checksum type is provided, and no specific checksum is provided, default to crc32c
     if [checksum, crc32c, md5].all?(&:nil?) || checksum == true
       crc32c = Google::Cloud::Storage::File::Verifier.crc32c_for(StringIO.new("Hello world"))
     end
