@@ -1628,7 +1628,7 @@ module Google
         #   changed to a time in the future. If custom_time must be unset, you
         #   must either perform a rewrite operation, or upload the data again
         #   and create a new file.
-        # @param [Symbol, nil] checksum The type of checksum for the client to
+        # @param [Symbol, nil, Boolean] checksum The type of checksum for the client to
         #   automatically calculate and send with the create request to verify
         #   the integrity of the object. If provided, Cloud Storage will only
         #   create the file if the value calculated by the client matches the
@@ -1636,8 +1636,8 @@ module Google
         #
         #   Acceptable values are:
         #
-        #   * true - Calculate and provide a checksum using the CRC32c hash.
-        #   * false - Do not calculate or provide a checksum.
+        #   * true [Boolean] - Calculate and provide a checksum using the CRC32c hash.
+        #   * false [Boolean] - Do not calculate or provide a checksum.
         #   * `md5` - Calculate and provide a checksum using the MD5 hash.
         #   * `crc32c` - Calculate and provide a checksum using the CRC32c hash.
         #   * `all` - Calculate and provide checksums for all available verifications.
