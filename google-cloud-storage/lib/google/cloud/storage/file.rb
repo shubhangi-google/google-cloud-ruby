@@ -370,6 +370,15 @@ module Google
           update_gapi! :content_type
         end
 
+        def contexts
+          @gapi.contexts
+        end
+
+        def contexts= contexts
+          @gapi.contexts = contexts
+          update_gapi! :contexts
+        end
+
         ##
         # A custom time specified by the user for the file, or `nil`.
         #
