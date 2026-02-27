@@ -1410,6 +1410,15 @@ module Google
                                 user_project: user_project
         end
 
+        def ip_filter
+          @gapi.ip_filter
+        end
+
+        def ip_filter= new_ip_filter
+          @gapi.ip_filter = new_ip_filter || {}
+          patch_gapi! :ip_filter
+        end
+
         ##
         # Retrieves a list of files matching the criteria.
         #
