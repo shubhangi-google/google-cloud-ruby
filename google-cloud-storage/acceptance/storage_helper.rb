@@ -202,22 +202,24 @@ rescue => e
 end
 
 def set_object_contexts bucket_name:, file_name:, custom_context_key:, custom_context_value:
-
   bucket  = storage.bucket bucket_name
   file    = bucket.file file_name
+  contexts = Google::Apis::StorageV1::Object::Contexts.new(
+    custom: context_custom_hash(custom_context_key: custom_context_key ,custom_context_value: custom_context_value)
+  )
+  file.update do |file|
+    file.contexts = contexts
+  end
+end
 
+def context_custom_hash custom_context_key: ,custom_context_value:
   payload = Google::Apis::StorageV1::ObjectCustomContextPayload.new(
     value: custom_context_value
   )
   custom_hash = {
     custom_context_key => payload
   }
-  contexts = Google::Apis::StorageV1::Object::Contexts.new(
-    custom: custom_hash
-  )
-  file.update do |file|
-    file.contexts = contexts
-  end
+  custom_hash
 end
 
 Minitest.after_run do
