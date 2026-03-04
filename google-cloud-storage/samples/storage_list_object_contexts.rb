@@ -15,43 +15,31 @@
 require "google/cloud/storage"
 
 # [START storage_list_object_contexts]
-def list_object_contexts bucket_name:, file_name:, custom_context_key:, custom_context_value:
+def list_object_contexts bucket_name:, custom_context_key:, custom_context_value: nil
   # The ID of your GCS bucket
   # bucket_name = "your-unique-bucket-name"
 
-  # The ID of your GCS object
-  # file_name = "your-file-name"
-
-  # The key and value of the custom context to be added
+  # The key of the custom context to be filtered
   # custom_context_key = "your-custom-context-key"
+  # The value of the custom context to be filtered
   # custom_context_value = "your-custom-context-value"
 
   storage = Google::Cloud::Storage.new
   bucket  = storage.bucket bucket_name
-filter_query = "contexts.#{custom_context_key}:*"
- binding.pry
-bucket.files(filter: filter_query)
- 
-#   file    = bucket.file file_name
 
-#   payload = Google::Apis::StorageV1::ObjectCustomContextPayload.new(
-#     value: custom_context_value
-#   )
-#   custom_hash = {
-#     custom_context_key => payload
-#   }
-#   contexts = Google::Apis::StorageV1::Object::Contexts.new(
-#     custom: custom_hash
-#   )
+  filter_query = if custom_context_value.nil?
+                   "contexts.\"#{custom_context_key}\":*"
+                 else
+                   "contexts.\"#{custom_context_key}\"=\"#{custom_context_value}\""
+                 end
 
-#   file.update do |file|
-#     file.contexts = contexts
-#   end
-  puts "Contexts for #{file_name} has been updated."
+  list = bucket.files filter: filter_query
+  list.each do |file|
+    puts "File: #{file.name} has context key: #{custom_context_key}"
+  end
 end
 # [END storage_list_object_contexts]
 
 if $PROGRAM_NAME == __FILE__
-  list_object_contexts bucket_name: ARGV.shift, file_name: ARGV.shift,
-                      custom_context_key: ARGV.shift, custom_context_value: ARGV.shift
+  list_object_contexts bucket_name: ARGV.shift, custom_context_key: ARGV.shift, custom_context_value: ARGV.shift
 end
