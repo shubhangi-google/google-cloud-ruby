@@ -53,7 +53,6 @@ require_relative "../storage_upload_encrypted_file"
 require_relative "../storage_upload_file"
 require_relative "../storage_upload_from_memory"
 require_relative "../storage_upload_with_kms_key"
-require 'pry'
 
 describe "Files Snippets" do
   let(:storage_client)   { Google::Cloud::Storage.new }

@@ -1,4 +1,4 @@
-# Copyright 2024 Google LLC
+# Copyright 2026 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-require_relative "../storage_helper"
+require "storage_helper"
+require 'pry'
 
 describe Google::Cloud::Storage::Bucket, :contexts, :storage do
   let(:bucket_name) { $bucket_names[0] }
@@ -32,6 +33,8 @@ describe Google::Cloud::Storage::Bucket, :contexts, :storage do
   before(:all) do
     bucket.create_file local_file, file_name
     bucket.create_file local_file, file_name2
+    custom_hash1 = context_custom_hash custom_context_key: custom_context_key1, custom_context_value: custom_context_value1
+    custom_hash2 = context_custom_hash custom_context_key: custom_context_key2, custom_context_value: custom_context_value2
     set_object_contexts bucket_name: bucket.name, file_name: file_name, custom_context_key: custom_context_key1, custom_context_value: custom_context_value1
     set_object_contexts bucket_name: bucket.name, file_name: file_name2, custom_context_key: custom_context_key2, custom_context_value: custom_context_value2
   end
