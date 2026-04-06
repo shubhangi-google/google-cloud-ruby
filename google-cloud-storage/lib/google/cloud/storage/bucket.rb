@@ -716,6 +716,154 @@ module Google
             default_kms_key_name: new_default_kms_key
           patch_gapi! :encryption
         end
+        ##
+        # The bucket's encryption configuration for customer-managed encryption keys.
+        # This configuration defines the
+        # default encryption behavior for the bucket and its files, and it can be used to enforce encryption requirements for the bucket.
+        # For more information, see [Bucket encryption](https://docs.cloud.google.com/storage/docs/encryption/).
+        # @return [Google::Apis::StorageV1::Bucket::Encryption::CustomerManagedEncryptionEnforcementConfig, nil] The bucket's encryption configuration, or `nil` if no encryption configuration has been set.
+        # @example
+        #   require "google/cloud/storage"
+        #   #
+        #   storage = Google::Cloud::Storage.new
+        #   bucket = storage.bucket "my-bucket"
+        #   bucket.customer_managed_encryption_enforcement_config #=> Google::Apis::StorageV1::Bucket::Encryption::CustomerManagedEncryptionEnforcementConfig.new
+        #     restriction_mode: "NotRestricted"
+        #   The value for `restriction_mode` can be either "NotRestricted" or "FullyRestricted"
+
+        def customer_managed_encryption_enforcement_config
+          @gapi.encryption&.customer_managed_encryption_enforcement_config
+        end
+        ##
+        # Sets the bucket's encryption configuration for customer-managed encryption that will be used to protect files.
+        # @param [Google::Apis::StorageV1::Bucket::Encryption::CustomerManagedEncryptionEnforcementConfig, nil] new_customer_managed_encryption_enforcement_config The bucket's encryption configuration, or `nil` to delete the encryption configuration.
+        # @example
+        #   require "google/cloud/storage"
+        #   #
+        #   storage = Google::Cloud::Storage.new
+        #   bucket = storage.bucket "my-bucket"
+        #   new_config = Google::Apis::StorageV1::Bucket::Encryption::CustomerManagedEncryptionEnforcementConfig.new restriction_mode: "FullyRestricted"
+        #   bucket.customer_managed_encryption_enforcement_config = new_config
+        #   The value for `restriction_mode` can be either "NotRestricted" or "FullyRestricted"
+
+        def customer_managed_encryption_enforcement_config= new_customer_managed_encryption_enforcement_config
+          @gapi.encryption ||= API::Bucket::Encryption.new
+          @gapi.encryption.customer_managed_encryption_enforcement_config =
+            new_customer_managed_encryption_enforcement_config || {}
+          patch_gapi! :encryption
+        end
+
+        ##
+        # Updates the bucket's encryption enforcement configuration.
+        #
+        # @param [Google::Apis::StorageV1::Bucket::Encryption::GoogleManagedEncryptionEnforcementConfig, Google::Apis::StorageV1::Bucket::Encryption::CustomerManagedEncryptionEnforcementConfig, Google::Apis::StorageV1::Bucket::Encryption::CustomerSuppliedEncryptionEnforcementConfig] incoming_config The new encryption enforcement configuration to apply.
+        #
+        # @raise [ArgumentError] If the provided config type is unsupported.
+        #
+        # @example
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #   bucket = storage.bucket "my-bucket"
+        #
+        #   new_config = Google::Apis::StorageV1::Bucket::Encryption::GoogleManagedEncryptionEnforcementConfig.new restriction_mode: "FullyRestricted"
+        #   bucket.update_bucket_encryption_enforcement_config new_config
+        #
+        def update_bucket_encryption_enforcement_config incoming_config
+          attr_name = case incoming_config
+                      when Google::Apis::StorageV1::Bucket::Encryption::GoogleManagedEncryptionEnforcementConfig
+                        :google_managed_encryption_enforcement_config
+                      when Google::Apis::StorageV1::Bucket::Encryption::CustomerManagedEncryptionEnforcementConfig
+                        :customer_managed_encryption_enforcement_config
+                      when Google::Apis::StorageV1::Bucket::Encryption::CustomerSuppliedEncryptionEnforcementConfig
+                        :customer_supplied_encryption_enforcement_config
+                      else
+                        raise ArgumentError, "Unsupported config type: #{incoming_config.class}"
+                      end
+          encryption_patch = Google::Apis::StorageV1::Bucket::Encryption.new
+          encryption_patch.public_send "#{attr_name}=", incoming_config
+          patch_gapi! :encryption, bucket_encryption_config: encryption_patch
+        end
+
+        ##
+        # The bucket's encryption configuration for customer-supplied encryption keys. This configuration defines the
+        # default encryption behavior for the bucket and its files, and it can be used to enforce encryption requirements
+        # for the bucket.
+        # For more information, see [Bucket encryption](https://docs.cloud.google.com/storage/docs/encryption/).
+        # @return [Google::Apis::StorageV1::Bucket::Encryption::CustomerSuppliedEncryptionEnforcementConfig, nil] 
+        # The bucket's encryption configuration, or `nil` if no encryption configuration has been set.
+        # @example
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #   bucket = storage.bucket "my-bucket"
+        #   
+        #   new_config = Google::Apis::StorageV1::Bucket::Encryption::CustomerSuppliedEncryptionEnforcementConfig.new restriction_mode: "NotRestricted"
+        #   bucket.customer_supplied_encryption_enforcement_config = new_config
+        #   The value for `restriction_mode` can be either "NotRestricted" or "FullyRestricted".
+
+        def customer_supplied_encryption_enforcement_config
+          @gapi.encryption&.customer_supplied_encryption_enforcement_config
+        end
+
+        ##
+        # Sets the bucket's encryption configuration for customer-managed encryption that will be used to protect files.
+        # @param [Google::Apis::StorageV1::Bucket::Encryption::CustomerSuppliedEncryptionEnforcementConfig, nil] new_customer_supplied_encryption_enforcement_config The bucket's encryption configuration, or `nil` to delete the encryption configuration.
+        # @example
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #   bucket = storage.bucket "my-bucket"
+        #   new_config = Google::Apis::StorageV1::Bucket::Encryption::CustomerSuppliedEncryptionEnforcementConfig.new restriction_mode: "FullyRestricted"
+        #   bucket.customer_supplied_encryption_enforcement_config = new_config
+        #   The value for `restriction_mode` can be either "NotRestricted" or "FullyRestricted"
+
+        def customer_supplied_encryption_enforcement_config= new_customer_supplied_encryption_enforcement_config
+          @gapi.encryption ||= API::Bucket::Encryption.new
+          @gapi.encryption.customer_supplied_encryption_enforcement_config =
+            new_customer_supplied_encryption_enforcement_config || {}
+          patch_gapi! :encryption
+        end
+
+        ##
+        # The bucket's encryption configuration for google-managed encryption keys.
+        # This configuration defines the
+        # default encryption behavior for the bucket and its files, and it can be used to enforce encryption
+        # requirements for the bucket.
+        # For more information, see [Bucket encryption](https://docs.cloud.google.com/storage/docs/encryption/).
+        # @return [Google::Apis::StorageV1::Bucket::Encryption::GoogleManagedEncryptionEnforcementConfig, nil]
+        # The bucket's encryption configuration, or `nil` if no encryption configuration has been set.
+        # @example
+        #   require "google/cloud/storage"
+        #
+        #   storage = Google::Cloud::Storage.new
+        #   bucket = storage.bucket "my-bucket"
+        #   new_config= Google::Apis::StorageV1::Bucket::Encryption::GoogleManagedEncryptionEnforcementConfig.new restriction_mode: "NotRestricted"
+        #   bucket.google_managed_encryption_enforcement_config = new_config
+        #   The value for `restriction_mode` can be either "NotRestricted" or "FullyRestricted".
+
+        def google_managed_encryption_enforcement_config
+          @gapi.encryption&.google_managed_encryption_enforcement_config
+        end
+
+        ##
+        # Sets the bucket's encryption configuration for google-managed encryption that will be used to protect files.
+        # @param [Google::Apis::StorageV1::Bucket::Encryption::GoogleManagedEncryptionEnforcementConfig, nil] new_google_managed_encryption_enforcement_config The bucket's encryption configuration, or `nil` to delete the encryption configuration.
+        # @example
+        #   require "google/cloud/storage"
+        #   #
+        #   storage = Google::Cloud::Storage.new
+        #   bucket = storage.bucket "my-bucket"
+        #   new_config = Google::Apis::StorageV1::Bucket::Encryption::GoogleManagedEncryptionEnforcementConfig.new restriction_mode: "FullyRestricted"
+        #   bucket.google_managed_encryption_enforcement_config = new_config
+        #   The value for `restriction_mode` can be either "NotRestricted" or "FullyRestricted"
+
+        def google_managed_encryption_enforcement_config= new_google_managed_encryption_enforcement_config
+          @gapi.encryption ||= API::Bucket::Encryption.new
+          @gapi.encryption.google_managed_encryption_enforcement_config =
+            new_google_managed_encryption_enforcement_config || {}
+          patch_gapi! :encryption
+        end
 
         ##
         # The period of time (in seconds) that files in the bucket must be
@@ -3252,13 +3400,18 @@ module Google
 
         def patch_gapi! attributes,
                         if_metageneration_match: nil,
-                        if_metageneration_not_match: nil
+                        if_metageneration_not_match: nil,
+                        bucket_encryption_config: nil
           attributes = Array(attributes)
           attributes.flatten!
           return if attributes.empty?
           ensure_service!
           patch_args = attributes.to_h do |attr|
-            [attr, @gapi.send(attr)]
+            if bucket_encryption_config
+              [attr, bucket_encryption_config]
+            else
+              [attr, @gapi.send(attr)]
+            end
           end
           patch_gapi = API::Bucket.new(**patch_args)
           @gapi = service.patch_bucket name,
