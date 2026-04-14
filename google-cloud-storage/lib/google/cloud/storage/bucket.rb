@@ -3527,25 +3527,6 @@ module Google
             yield @cors_builder if block_given?
             @cors_builder
           end
-          def check_for_encryption_enforcement_config!
-            return unless @gapi.encryption
-
-            configs = [
-              :google_managed_encryption_enforcement_config,
-              :customer_managed_encryption_enforcement_config,
-              :customer_supplied_encryption_enforcement_config
-            ]
-
-            configs.each do |config_name|
-              sub_config = @gapi.encryption.send config_name
-              if sub_config.respond_to? :effective_time=
-                sub_config.effective_time = nil
-              elsif sub_config.is_a? Hash
-                sub_config.delete :effective_time
-                sub_config.delete "effective_time"
-              end
-            end
-          end
 
           ##
           # @private Make sure any cors changes are saved
@@ -3570,6 +3551,26 @@ module Google
             return unless @lifecycle_builder.changed?
             @gapi.lifecycle = @lifecycle_builder.to_gapi
             patch_gapi! :lifecycle
+          end
+
+          def check_for_encryption_enforcement_config!
+            return unless @gapi.encryption
+
+            [
+              :google_managed_encryption_enforcement_config,
+              :customer_managed_encryption_enforcement_config,
+              :customer_supplied_encryption_enforcement_config
+            ].each do |attr|
+              config = @gapi.encryption.send(attr)
+              next unless config
+              unless config.respond_to?(:to_h)
+                raise ArgumentError, "Encryption config for #{attr} must be a Hash or valid Config object"
+              end
+              clean_config = config.to_h
+              clean_config.delete :effective_time
+              clean_config.delete "effective_time"
+              @gapi.encryption.send "#{attr}=", clean_config
+            end
           end
 
           protected
