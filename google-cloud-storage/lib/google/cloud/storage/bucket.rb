@@ -771,62 +771,6 @@ module Google
           patch_gapi! :encryption
         end
 
-        # Updates the bucket's encryption enforcement configuration.
-        #
-        # This method applies a patch to the bucket's encryption settings using the 
-        # provided configuration.
-        #
-        # @param incoming_config [Hash, Google::Apis::StorageV1::Bucket::Encryption] 
-        #   The encryption configuration to apply. If a Hash is provided, it should 
-        #   contain keys corresponding to the encryption enforcement types.
-        #
-        # @example Updating to Google-Managed Encryption
-        #   storage = Google::Cloud::Storage.new
-        #   bucket = storage.bucket "my-bucket"
-        #
-        #   new_config = {
-        #     google_managed_encryption_enforcement_config: { restriction_mode: "NotRestricted" }
-        #   }
-        #
-        #   bucket.update_bucket_encryption_enforcement_config new_config
-        #
-        # @example Passing a Request Object
-        #   require "google/apis/storage_v1"
-        #   config_obj = Google::Apis::StorageV1::Bucket::Encryption.new(
-        #     google_managed_encryption_enforcement_config: { restriction_mode: "NotRestricted" }
-        #   )
-        #   bucket.update_bucket_encryption_enforcement_config config_obj
-        # @raise [ArgumentError] If the config is empty, contains invalid keys, or is the wrong type.
-        def update_bucket_encryption_enforcement_config incoming_config
-          allowed_keys = [
-            :google_managed_encryption_enforcement_config,
-            :customer_managed_encryption_enforcement_config,
-            :customer_supplied_encryption_enforcement_config
-          ]
-
-          if incoming_config.is_a? Hash
-            input_keys = incoming_config.keys
-            raise ArgumentError, "Config cannot be empty" if input_keys.empty?
-
-            extra_keys = input_keys - allowed_keys
-            unless extra_keys.empty?
-              raise ArgumentError, "Invalid config detected: #{extra_keys.join(', ')}. " \
-                                  "Only #{allowed_keys.join(', ')} are allowed."
-            end
-
-          elsif incoming_config.is_a? Google::Apis::StorageV1::Bucket::Encryption
-            # For objects, ensure at least one of the allowed enforcement configs is present
-            has_any_config = allowed_keys.any? { |key| !incoming_config.send(key).nil? }
-            binding.pry
-            raise ArgumentError, "Encryption request object must have at least one enforcement config set" unless has_any_config
-            
-          else
-            raise ArgumentError, "incoming_config must be a Hash or Google::Apis::StorageV1::Bucket::Encryption"
-          end
-
-          patch_gapi! :encryption, bucket_encryption_config: incoming_config
-        end
-
         ##
         # The bucket's encryption configuration for customer-supplied encryption keys.
         # For more information, see [Bucket encryption](https://docs.cloud.google.com/storage/docs/encryption/).
@@ -1595,6 +1539,7 @@ module Google
           updater.check_for_changed_labels!
           updater.check_for_mutable_cors!
           updater.check_for_mutable_lifecycle!
+          updater.check_for_encryption_enforcement_config!
           return if updater.updates.empty?
           update_gapi! updater.updates,
                        if_metageneration_match: if_metageneration_match,
@@ -3586,6 +3531,25 @@ module Google
             @cors_builder ||= Bucket::Cors.from_gapi @gapi.cors_configurations
             yield @cors_builder if block_given?
             @cors_builder
+          end
+          def check_for_encryption_enforcement_config!
+            return unless @gapi.encryption
+
+            configs = [
+              :google_managed_encryption_enforcement_config,
+              :customer_managed_encryption_enforcement_config,
+              :customer_supplied_encryption_enforcement_config
+            ]
+
+            configs.each do |config_name|
+              sub_config = @gapi.encryption.send config_name
+              if sub_config.respond_to? :effective_time=
+                sub_config.effective_time = nil
+              elsif sub_config.is_a? Hash
+                sub_config.delete :effective_time
+                sub_config.delete "effective_time"
+              end
+            end
           end
 
           ##
