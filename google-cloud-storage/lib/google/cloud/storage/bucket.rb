@@ -3419,18 +3419,13 @@ module Google
 
         def patch_gapi! attributes,
                         if_metageneration_match: nil,
-                        if_metageneration_not_match: nil,
-                        bucket_encryption_config: nil
+                        if_metageneration_not_match: nil
           attributes = Array(attributes)
           attributes.flatten!
           return if attributes.empty?
           ensure_service!
           patch_args = attributes.to_h do |attr|
-            if bucket_encryption_config
-              [attr, bucket_encryption_config]
-            else
-              [attr, @gapi.send(attr)]
-            end
+            [attr, @gapi.send(attr)]
           end
           patch_gapi = API::Bucket.new(**patch_args)
           @gapi = service.patch_bucket name,
