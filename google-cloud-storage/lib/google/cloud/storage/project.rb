@@ -477,12 +477,15 @@ module Google
                           user_project: nil,
                           autoclass_enabled: false,
                           enable_object_retention: nil,
-                          hierarchical_namespace: nil
+                          hierarchical_namespace: nil,
+                          ip_filter: nil
+
           params = {
             name: bucket_name,
             location: location,
             custom_placement_config: custom_placement_config,
-            hierarchical_namespace: hierarchical_namespace
+            hierarchical_namespace: hierarchical_namespace,
+            ip_filter: ip_filter
           }.delete_if { |_, v| v.nil? }
           new_bucket = Google::Apis::StorageV1::Bucket.new(**params)
           storage_class = storage_class_for storage_class
@@ -496,6 +499,7 @@ module Google
             b.versioning = versioning unless versioning.nil?
             b.requester_pays = requester_pays unless requester_pays.nil?
             b.hierarchical_namespace = hierarchical_namespace unless hierarchical_namespace.nil?
+            b.ip_filter = ip_filter unless ip_filter.nil?
           end
           yield updater if block_given?
           updater.check_for_changed_labels!
