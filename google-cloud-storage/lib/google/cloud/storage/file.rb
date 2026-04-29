@@ -985,7 +985,7 @@ module Google
         # @param [Boolean] skip_decompress Optional. If `true`, the data for a
         #   Storage object returning a `Content-Encoding: gzip` response header
         #   will *not* be automatically decompressed by this client library. The
-        #   default is `nil`. Note that all requests by this client library send
+        #   default is `nil`. Note that download requests by this client library send
         #   the `Accept-Encoding: gzip` header, so decompressive transcoding is
         #   not performed in the Storage service. (See [Transcoding of
         #   gzip-compressed files](https://cloud.google.com/storage/docs/transcoding))
