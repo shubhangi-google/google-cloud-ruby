@@ -694,6 +694,21 @@ describe Google::Cloud::Storage::Bucket, :mock_storage do
     mock.verify
   end
 
+  it "omits Accept-Encoding: gzip header for file uploads" do
+    new_file_name = random_file_path
+    new_file_contents = StringIO.new "Hello world"
+
+    mock = Minitest::Mock.new
+    mock.expect :insert_object, create_file_gapi(bucket.name, new_file_name) do |b_name, file_obj, **kwargs|
+      headers = (kwargs[:options] && kwargs[:options][:header]) || {}
+      b_name == bucket.name && headers["Accept-Encoding"] != "gzip"
+    end
+    
+    bucket.service.mocked_service = mock
+    bucket.create_file new_file_contents, new_file_name
+    mock.verify
+  end
+
   it "raises when given a file that does not exist" do
     bad_file_path = "/this/file/does/not/exist.ext"
 

@@ -267,6 +267,16 @@ describe Google::Cloud::Storage::Bucket, :storage do
     _(bucket.lifecycle.count).must_equal original_count
   end
 
+  it "omits Accept-Encoding: gzip header for file uploads" do
+    global_headers = storage.service.service.request_options.header || {}
+    _(global_headers["Accept-Encoding"]).wont_equal "gzip"
+
+    uploaded = bucket.create_file StringIO.new('{"metadata":"test"}'), "test-upload-metadata.json", content_type: "application/json"
+    
+    _(uploaded.name).must_equal "test-upload-metadata.json"
+    uploaded.delete
+  end
+
   it "does not error when getting a file that does not exist" do
     random_bucket = storage.bucket "#{bucket_name}_does_not_exist"
     _(random_bucket).must_be :nil?

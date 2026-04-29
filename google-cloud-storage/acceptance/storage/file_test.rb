@@ -42,6 +42,15 @@ describe Google::Cloud::Storage::File, :storage do
     bucket.files(versions: true).all { |f| f.delete generation: true rescue nil }
   end
 
+  it "does not send Accept-Encoding: gzip globally during file uploads" do
+    global_headers = storage.service.service.request_options.header || {}
+    _(global_headers["Accept-Encoding"]).wont_equal "gzip"
+
+    uploaded = bucket.create_file StringIO.new('{"metadata":"test"}'), "upload-metadata.json", content_type: "application/json"
+    _(uploaded.name).must_equal "upload-metadata.json"
+    uploaded.delete
+  end
+
   it "should upload and download a file" do
     original = File.new files[:logo][:path]
     uploaded = bucket.create_file original, "CloudLogo.png",

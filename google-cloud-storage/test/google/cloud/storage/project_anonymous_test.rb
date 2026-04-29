@@ -107,7 +107,7 @@ describe Google::Cloud::Storage::Project, :anonymous, :mock_storage do
       mock.expect :get_bucket, find_bucket_gapi(bucket_name), [bucket_name], **get_bucket_args
       mock.expect :get_object, find_file_gapi(bucket_name, file_name), [bucket_name, file_name], **get_object_args
       mock.expect :get_object, [tmpfile, download_http_resp],
-        [bucket_name, file_name], download_dest: tmpfile, generation: 1234567890, user_project: nil, options: {}
+        [bucket_name, file_name], download_dest: tmpfile, generation: 1234567890, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
       anonymous_storage.service.mocked_service = mock
 

@@ -221,7 +221,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
       mock = Minitest::Mock.new
       mock.expect :get_object, [tmpfile, download_http_resp],
-        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: {}
+        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
       bucket.service.mocked_service = mock
 
@@ -247,7 +247,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
       mock = Minitest::Mock.new
       mock.expect :get_object, [tmpfile, download_http_resp(gzip: true)],
-        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: {}
+        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
       bucket.service.mocked_service = mock
 
@@ -273,7 +273,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
       mock = Minitest::Mock.new
       mock.expect :get_object, [tmpfile, download_http_resp(gzip: true)],
-        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: {}
+        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
       bucket.service.mocked_service = mock
 
@@ -297,7 +297,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
       mock = Minitest::Mock.new
       mock.expect :get_object, [tmpfile, download_http_resp],
-        [bucket.name, file.name], download_dest: tmpfile.path, generation: generation, user_project: nil, options: {}
+        [bucket.name, file.name], download_dest: tmpfile.path, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
       bucket.service.mocked_service = mock
 
@@ -320,7 +320,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
       mock = Minitest::Mock.new
       mock.expect :get_object, [tmpfile, download_http_resp],
-        [bucket.name, file_user_project.name], download_dest: tmpfile, generation: generation, user_project: "test", options: {}
+        [bucket.name, file_user_project.name], download_dest: tmpfile, generation: generation, user_project: "test", options: { header: { "Accept-Encoding" => "gzip" } }
 
       bucket.service.mocked_service = mock
 
@@ -341,7 +341,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
     downloadio = StringIO.new
     mock = Minitest::Mock.new
     mock.expect :get_object, [StringIO.new(data), download_http_resp],
-      [bucket.name, file.name], download_dest: downloadio, generation: generation, user_project: nil, options: {}
+      [bucket.name, file.name], download_dest: downloadio, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
     bucket.service.mocked_service = mock
 
@@ -362,7 +362,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
     mock = Minitest::Mock.new
     mock.expect :get_object, [StringIO.new(gzipped_data), download_http_resp(gzip: true)],
-      [bucket.name, file.name], download_dest: downloadio, generation: generation, user_project: nil, options: {}
+      [bucket.name, file.name], download_dest: downloadio, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
     bucket.service.mocked_service = mock
 
@@ -383,7 +383,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
     mock = Minitest::Mock.new
     mock.expect :get_object, [StringIO.new(gzipped_data), download_http_resp(gzip: true)],
-      [bucket.name, file.name], download_dest: downloadio, generation: generation, user_project: nil, options: {}
+      [bucket.name, file.name], download_dest: downloadio, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
     bucket.service.mocked_service = mock
 
@@ -404,7 +404,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
     mock = Minitest::Mock.new
     mock.expect :get_object, [StringIO.new("yay!"), download_http_resp],
-      [bucket.name, file.name], download_dest: downloadio, generation: generation, user_project: nil, options: {}
+      [bucket.name, file.name], download_dest: downloadio, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
     bucket.service.mocked_service = mock
 
@@ -427,7 +427,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
       mock = Minitest::Mock.new
       mock.expect :get_object, [nil, download_http_resp], # using encryption keys seems to return nil
-        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: key_options
+        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: key_headers.merge("Accept-Encoding" => "gzip") }
 
       bucket.service.mocked_service = mock
 
@@ -442,7 +442,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
     Tempfile.open "google-cloud" do |tmpfile|
       mock = Minitest::Mock.new
       mock.expect :get_object, [tmpfile, download_http_resp],
-        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { 'Range' => 'bytes=3-6' }}
+        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Range" => "bytes=3-6", "Accept-Encoding" => "gzip" } }
 
       bucket.service.mocked_service = mock
 
@@ -457,7 +457,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
     Tempfile.open "google-cloud" do |tmpfile|
       mock = Minitest::Mock.new
       mock.expect :get_object, [tmpfile, download_http_resp],
-        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { 'Range' => 'bytes=-6' }}
+        [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Range" => "bytes=-6", "Accept-Encoding" => "gzip" } }
 
       bucket.service.mocked_service = mock
 
@@ -477,7 +477,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
       Tempfile.open "google-cloud" do |tmpfile|
         mock = Minitest::Mock.new
         mock.expect :get_object, [tmpfile, download_http_resp],
-          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: {}
+          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
         bucket.service.mocked_service = mock
 
@@ -504,7 +504,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
       Tempfile.open "google-cloud" do |tmpfile|
         mock = Minitest::Mock.new
         mock.expect :get_object, [tmpfile, download_http_resp],
-          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: {}
+          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
         bucket.service.mocked_service = mock
 
@@ -531,7 +531,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
       Tempfile.open "google-cloud" do |tmpfile|
         mock = Minitest::Mock.new
         mock.expect :get_object, [tmpfile, download_http_resp],
-          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: {}
+          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
         bucket.service.mocked_service = mock
 
@@ -558,7 +558,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
 
       mock = Minitest::Mock.new
       mock.expect :get_object, [StringIO.new(data), download_http_resp],
-        [bucket.name, file.name], download_dest: path, generation: 1234567890, user_project: nil, options: {}
+        [bucket.name, file.name], download_dest: path, generation: 1234567890, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
       bucket.service.mocked_service = mock
 
@@ -577,7 +577,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
       Tempfile.open "google-cloud" do |tmpfile|
         mock = Minitest::Mock.new
         mock.expect :get_object, [tmpfile, download_http_resp],
-          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: {}
+          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
         bucket.service.mocked_service = mock
 
@@ -608,7 +608,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
       Tempfile.open "google-cloud" do |tmpfile|
         mock = Minitest::Mock.new
         mock.expect :get_object, [tmpfile, download_http_resp],
-          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: {}
+          [bucket.name, file.name], download_dest: tmpfile, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
         bucket.service.mocked_service = mock
 
@@ -633,7 +633,7 @@ describe Google::Cloud::Storage::File, :mock_storage do
       Tempfile.open "google-cloud" do |tmpfile|
         mock = Minitest::Mock.new
         mock.expect :get_object, [tmpfile, download_http_resp],
-          [bucket.name, file.name], download_dest: tmpfile.path, generation: generation, user_project: nil, options: {}
+          [bucket.name, file.name], download_dest: tmpfile.path, generation: generation, user_project: nil, options: { header: { "Accept-Encoding" => "gzip" } }
 
         bucket.service.mocked_service = mock
 
