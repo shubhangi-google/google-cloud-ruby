@@ -585,8 +585,7 @@ module Google
                           key: nil, range: nil, user_project: nil, options: {}
           options = key_options(key).merge(options)
           options = range_header options, range
-          options[:header] ||= {}
-          options[:header]["Accept-Encoding"] = "gzip"
+          options[:header] = (options[:header] || {}).merge("Accept-Encoding" => "gzip")
 
           execute do
             service.get_object \
