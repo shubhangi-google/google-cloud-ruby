@@ -1,0 +1,39 @@
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+require "googleauth"
+
+module Google
+  module Cloud
+    module Storage
+      ##
+      # @private
+      class IAMSigner
+        def initialize
+          require "google/apis/iamcredentials_v1"
+          @iam_client = Google::Apis::IamcredentialsV1::IAMCredentialsService.new
+          scopes = ["https://www.googleapis.com/auth/iam"]
+          @iam_client.authorization = Google::Auth.get_application_default scopes
+        end
+
+        def sign issuer, string_to_sign
+          request = Google::Apis::IamcredentialsV1::SignBlobRequest.new payload: string_to_sign
+          resource = "projects/-/serviceAccounts/#{issuer}"
+          response = @iam_client.sign_service_account_blob resource, request
+          response.signed_blob
+        end
+      end
+    end
+  end
+end

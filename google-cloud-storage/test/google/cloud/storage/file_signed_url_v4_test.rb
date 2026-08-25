@@ -149,18 +149,50 @@ describe Google::Cloud::Storage::File, :signed_url, :v4, :mock_storage do
     credentials.issuer = nil
     credentials.signing_key = PoisonSigningKey.new
 
-    expect {
-      file.signed_url version: :v4
-    }.must_raise Google::Cloud::Storage::SignedUrlUnavailable
+    # Mock `compute_engine?` to false to ensure it raises SignedUrlUnavailable
+    Google::Cloud.env.stub :compute_engine?, false do
+      expect {
+        file.signed_url version: :v4
+      }.must_raise Google::Cloud::Storage::SignedUrlUnavailable
+    end
   end
 
   it "raises when missing signing_key" do
     credentials.issuer = "native_issuer"
     credentials.signing_key = nil
 
-    expect {
-      file.signed_url version: :v4
-    }.must_raise Google::Cloud::Storage::SignedUrlUnavailable
+    # Mock `compute_engine?` to false to ensure it raises SignedUrlUnavailable
+    Google::Cloud.env.stub :compute_engine?, false do
+      expect {
+        file.signed_url version: :v4
+      }.must_raise Google::Cloud::Storage::SignedUrlUnavailable
+    end
+  end
+
+  it "uses IAMSigner if compute_engine? is true and no signing key provided" do
+    Time.stub :now, Time.new(2012,1,1,0,0,0, "+00:00") do
+      credentials.issuer = nil
+      credentials.signing_key = nil
+      
+      Google::Cloud.env.stub :compute_engine?, true do
+        Google::Cloud.env.stub :lookup_metadata, "metadata_issuer@email.com" do
+          require "google/cloud/storage/iam_signer"
+          iam_signer_mock = Minitest::Mock.new
+          iam_signer_mock.expect :sign, "iam-signature", ["metadata_issuer@email.com", "GOOG4-RSA-SHA256\n20120101T000000Z\n20120101/auto/storage/goog4_request\nb83cd45df47c1ab29470d2e31639c8df9f535c8f3bebe9046655b07eb3ed31e8"]
+          
+          Google::Cloud::Storage::IAMSigner.stub :new, iam_signer_mock do
+            signed_url = file.signed_url version: :v4
+            
+            signed_url_params = CGI::parse(URI(signed_url).query)
+            _(signed_url_params["X-Goog-Algorithm"]).must_equal  ["GOOG4-RSA-SHA256"]
+            _(signed_url_params["X-Goog-Credential"]).must_equal  ["metadata_issuer@email.com/20120101/auto/storage/goog4_request"]
+            _(signed_url_params["X-Goog-Signature"]).must_equal  ["69616d2d7369676e6174757265"] # hex for "iam-signature"
+          end
+          
+          iam_signer_mock.verify
+        end
+      end
+    end
   end
 
   it "raises with issuer and lambda with incorrect argument count" do
