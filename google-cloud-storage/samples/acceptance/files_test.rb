@@ -29,6 +29,7 @@ require_relative "../storage_download_public_file"
 require_relative "../storage_generate_encryption_key"
 require_relative "../storage_generate_signed_post_policy_v4"
 require_relative "../storage_generate_signed_url_v4"
+require_relative "../storage_generate_signed_url_v4_workload_identity"
 require_relative "../storage_generate_upload_signed_url_v4"
 require_relative "../storage_get_metadata"
 require_relative "../storage_get_object_contexts"
@@ -581,6 +582,34 @@ describe "Files Snippets" do
 
     file_contents = Net::HTTP.get URI(signed_url)
     assert_equal file_contents, File.read(local_file)
+  end
+
+  it "generate_signed_url_v4_workload_identity" do
+    bucket.create_file local_file, remote_file_name
+
+    # Skip this test if credentials lack an issuer since it is a prerequisite for automatic fallback to IAM API when mocking compute_engine?
+    issuer = bucket.service.credentials.issuer
+    skip "Test requires a service account with an issuer" unless issuer
+
+    # Temporarily remove private key to trigger keyless environment logic
+    bucket.service.credentials.stub :signing_key, nil do
+      bucket.service.credentials.stub :issuer, nil do
+        Google::Cloud.env.stub :compute_engine?, true do
+          Google::Cloud.env.stub :lookup_metadata, issuer do
+            out, _err = capture_io do
+              generate_signed_url_v4_workload_identity bucket_name: bucket.name,
+                                                       file_name:   remote_file_name
+            end
+
+            signed_url = out.scan(/http.*$/).first
+            refute_nil signed_url
+
+            file_contents = Net::HTTP.get URI(signed_url)
+            assert_equal file_contents, File.read(local_file)
+          end
+        end
+      end
+    end
   end
 
   it "generate_upload_signed_url_v4" do

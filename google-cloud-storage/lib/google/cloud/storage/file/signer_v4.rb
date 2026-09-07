@@ -66,7 +66,7 @@ module Google
             policy_str = escape_characters p.to_json
 
             policy = Base64.strict_encode64(policy_str).force_encoding "utf-8"
-            signature = generate_signature s, policy
+            signature = generate_signature s, policy, i
 
             post_fields["x-goog-signature"] = signature
             post_fields["policy"] = policy
@@ -195,13 +195,25 @@ module Google
           def determine_issuer issuer, client_email
             # Parse the Service Account and get client id and private key
             issuer = issuer || client_email || @service.credentials.issuer
+            return issuer if issuer
+
+            if Google::Cloud.env.compute_engine?
+              issuer = Google::Cloud.env.lookup_metadata "instance", "service-accounts/default/email"
+            end
+
             raise SignedUrlUnavailable, error_msg("issuer (client_email)") unless issuer
             issuer
           end
 
           def determine_signing_key signing_key, private_key, signer
             signing_key = signing_key || private_key || signer || @service.credentials.signing_key
-            raise SignedUrlUnavailable, error_msg("signing_key (private_key, signer)") unless signing_key
+            if signing_key
+              # Do nothing
+            elsif !Google::Cloud.env.compute_engine?
+              raise SignedUrlUnavailable, "Missing required signing key. " \
+                "Automatic keyless signing requires a GCE/GKE environment. " \
+                "Otherwise, a private key or explicit custom signer is required."
+            end
             signing_key
           end
 
@@ -229,7 +241,18 @@ module Google
           def issuer_and_signer issuer, client_email, signing_key, private_key, signer
             issuer = determine_issuer issuer, client_email
             signing_key = determine_signing_key signing_key, private_key, signer
-            signer = service_account_signer signing_key
+
+            if signing_key
+              signer = service_account_signer signing_key
+            elsif Google::Cloud.env.compute_engine?
+              require "google/cloud/storage/iam_signer"
+              iam_signer = Google::Cloud::Storage::IAMSigner.new
+              signer = lambda do |string_to_sign|
+                sig = iam_signer.sign issuer, string_to_sign
+                sig.unpack1 "H*"
+              end
+            end
+
             [issuer, signer]
           end
 
@@ -351,15 +374,21 @@ module Google
             end
           end
 
-          def generate_signature signing_key, data
+          def generate_signature signing_key, data, issuer = nil
             packed_signature = nil
-            if signing_key.is_a? Proc
-              packed_signature = signing_key.call data
-            else
-              unless signing_key.respond_to? :sign
-                signing_key = OpenSSL::PKey::RSA.new signing_key
+            if signing_key
+              if signing_key.is_a? Proc
+                packed_signature = signing_key.call data
+              else
+                unless signing_key.respond_to? :sign
+                  signing_key = OpenSSL::PKey::RSA.new signing_key
+                end
+                packed_signature = signing_key.sign OpenSSL::Digest::SHA256.new, data
               end
-              packed_signature = signing_key.sign OpenSSL::Digest::SHA256.new, data
+            elsif Google::Cloud.env.compute_engine?
+              require "google/cloud/storage/iam_signer"
+              iam_signer = Google::Cloud::Storage::IAMSigner.new
+              packed_signature = iam_signer.sign issuer, data
             end
             packed_signature.unpack1("H*").force_encoding "utf-8"
           end
