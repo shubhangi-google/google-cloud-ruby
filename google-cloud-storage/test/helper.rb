@@ -35,6 +35,12 @@ require "uri"
 require "google/cloud/storage"
 require "cgi"
 
+class Google::Cloud::Env
+  def compute_engine?
+    false
+  end
+end
+
 ##
 # Monkey-Patch Google API Client to support Mocks
 module Google::Apis::Core::Hashable

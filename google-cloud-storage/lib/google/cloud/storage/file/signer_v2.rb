@@ -80,12 +80,24 @@ module Google
           def determine_signing_key options = {}
             signing_key = options[:signing_key] || options[:private_key] ||
                           options[:signer] || @service.credentials.signing_key
-            raise SignedUrlUnavailable, error_msg("signing_key (private_key, signer)") unless signing_key
+            if signing_key
+              # Do nothing
+            elsif !Google::Cloud.env.compute_engine?
+              raise SignedUrlUnavailable, "Missing required signing key. " \
+                "Automatic keyless signing requires a GCE/GKE environment. " \
+                "Otherwise, a private key or explicit custom signer is required."
+            end
             signing_key
           end
 
           def determine_issuer options = {}
             issuer = options[:issuer] || options[:client_email] || @service.credentials.issuer
+            return issuer if issuer
+
+            if Google::Cloud.env.compute_engine?
+              issuer = Google::Cloud.env.lookup_metadata "instance", "service-accounts/default/email"
+            end
+
             raise SignedUrlUnavailable, error_msg("issuer (client_email)") unless issuer
             issuer
           end
@@ -111,7 +123,7 @@ module Google
             policy_str = p.to_json
             policy = Base64.strict_encode64(policy_str).delete "\n"
 
-            signature = generate_signature s, policy
+            signature = generate_signature s, policy, i
 
             fields[:GoogleAccessId] = i
             fields[:signature] = signature
@@ -126,19 +138,25 @@ module Google
             i = determine_issuer options
             s = determine_signing_key options
 
-            sig = generate_signature s, signature_str(options)
+            sig = generate_signature s, signature_str(options), i
             generate_signed_url i, sig, options[:expires], options[:query]
           end
 
-          def generate_signature signing_key, secret
+          def generate_signature signing_key, secret, issuer = nil
             unencoded_signature = ""
-            if signing_key.is_a? Proc
-              unencoded_signature = signing_key.call secret
-            else
-              unless signing_key.respond_to? :sign
-                signing_key = OpenSSL::PKey::RSA.new signing_key
+            if signing_key
+              if signing_key.is_a? Proc
+                unencoded_signature = signing_key.call secret
+              else
+                unless signing_key.respond_to? :sign
+                  signing_key = OpenSSL::PKey::RSA.new signing_key
+                end
+                unencoded_signature = signing_key.sign OpenSSL::Digest::SHA256.new, secret
               end
-              unencoded_signature = signing_key.sign OpenSSL::Digest::SHA256.new, secret
+            elsif Google::Cloud.env.compute_engine?
+              require "google/cloud/storage/iam_signer"
+              iam_signer = Google::Cloud::Storage::IAMSigner.new
+              unencoded_signature = iam_signer.sign issuer, secret
             end
             Base64.strict_encode64(unencoded_signature).delete "\n"
           end
